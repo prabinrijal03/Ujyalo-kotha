@@ -42,6 +42,33 @@ userSchema.methods.comparePassword = async function (password){
         throw(error);
     }
 };
+const postSchema = new mongoose.Schema({
+    title:{
+        type: String,
+        required: true
+    },
+    image:{
+        type: String,
+        required: true
+    },
+    details:{
+        type: String,
+        required: true
+    },
+    location:{
+        type: String,
+        required: true
+    },
+    price:{
+        type: String,
+        required: true
+    },
+    phoneNumber:{
+        type: Number,
+        required: true
+    }
+});
 
 const userModel = db.model('User', userSchema);
+const postModel = db.model('Post', postSchema)
 module.exports = userModel;

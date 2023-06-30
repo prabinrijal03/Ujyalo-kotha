@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const userModel = require('../model/user.model');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
 
 router.post('/register', async(req,res)=>{
     const { fullName, address, phoneNumber, email, password } = req.body;
@@ -37,6 +38,41 @@ router.post('/login', async(req,res)=>{
     catch (error){
     console.error(error);
         res.status(500).json({message: "Error logging in"});
+    }
+});
+
+const authenticateToken = (req,res,next)=>{
+    const token = req.headers.authorization;
+    if(!token){
+        return res.status(401).json({message:"Authentication token required."});
+    }
+    try {
+        const decoded = jwt.verify(token, 'secretKey');
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(403).json({message:"Invalid authentication token"});
+    }
+};
+const storage = multer.memoryStorage();
+const upload = multer({storage});
+
+router.post('/create-post', authenticateToken, upload.single('image'), async(req,res)=>{
+    const {title, details, location, price, phoneNumber} = req.body;
+    const imagePath = req.file.path;
+    try {
+        const post = new userModel({
+            title,
+            image: imagePath,
+            details,
+            location,
+            price,
+            phoneNumber
+        });
+        await post.save();
+        res.status(200).json({message:"Post created successfully."});
+    } catch (error) {
+        res.status(500).json({message:"Error creating post."});
     }
 });
 module.exports = router;
