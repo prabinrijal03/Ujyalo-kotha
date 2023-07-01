@@ -23,9 +23,10 @@ const postSchema = new mongoose.Schema({
         required: true
     },
     phoneNumber:{
-        type: Number,
+        type: String,
         required: true
-    }
+    },
+    memberId: String
 });
 const postModel = db.model('Post', postSchema);
 module.exports = postModel;

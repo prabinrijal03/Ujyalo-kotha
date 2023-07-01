@@ -43,14 +43,17 @@ router.post('/login', async(req,res)=>{
 });
 
 const authenticateToken = (req,res,next)=>{
-    const token = req.headers.authorization;
-    if(!token){
-        return res.status(401).json({message:"Authentication token required."});
-    }
-    try {
-        const decoded = jwt.verify(token, 'secretKey');
-        req.user = decoded;
-        next();
+    const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Authentication token required." });
+  }
+
+  const token = authHeader.substring(7);
+
+  try {
+    const decoded = jwt.verify(token, "secretKey");
+    req.user = { userId: decoded.userId };
+    next();
     } catch (error) {
         return res.status(403).json({message:"Invalid authentication token"});
     }
@@ -59,15 +62,17 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
   
 router.post('/create-post', authenticateToken, upload.single('image'), async(req,res)=>{
-    const {title, image, details, location, price, phoneNumber} = req.body;
+    const {title, details, location, price, phoneNumber} = req.body;
+    const memberId = req.user.userId;
     try {
         const post = new postModel({
             title,
-            image,
+            image: req.file.buffer.toString('base64'),
             details,
             location,
             price,
-            phoneNumber
+            phoneNumber,
+            memberId
         });
         await post.save();
         res.status(200).json({message:"Post created successfully."});
