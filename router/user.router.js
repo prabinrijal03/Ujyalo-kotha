@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const userModel = require('../model/user.model');
+const postModel = require('../model/post.model');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 
@@ -55,15 +56,14 @@ const authenticateToken = (req,res,next)=>{
     }
 };
 const storage = multer.memoryStorage();
-const upload = multer({storage});
-
+const upload = multer({ storage });
+  
 router.post('/create-post', authenticateToken, upload.single('image'), async(req,res)=>{
-    const {title, details, location, price, phoneNumber} = req.body;
-    const imagePath = req.file.path;
+    const {title, image, details, location, price, phoneNumber} = req.body;
     try {
-        const post = new userModel({
+        const post = new postModel({
             title,
-            image: imagePath,
+            image,
             details,
             location,
             price,
