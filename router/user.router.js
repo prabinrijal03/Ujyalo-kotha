@@ -80,4 +80,12 @@ router.post('/create-post', authenticateToken, upload.single('image'), async(req
         res.status(500).json({message:"Error creating post."});
     }
 });
+router.get('/posts', async(req,res)=>{
+    try {
+        const posts = await postModel.find();
+        res.status(200).json(posts);
+    } catch (error) {
+        res.status(500).json({message: " Error fetching posts"});
+    }
+});
 module.exports = router;
